@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ recipe.title }}</title>
+</head>
+<body>
+
+<p><a href="{% url 'recipe_list' %}">Back to recipes</a></p>
+
+<h1>{{ recipe.title }}</h1>
+
+{% if recipe.image %}
+    <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}" width="250">
+{% endif %}
+
+<p><strong>Ingredients:</strong> {{ recipe.ingredients }}</p>
+<p><strong>Steps:</strong> {{ recipe.steps }}</p>
+<p><strong>Cooking time:</strong> {{ recipe.cooking_time }} minutes</p>
+<p><strong>Difficulty:</strong> {{ recipe.difficulty }}</p>
+<p><strong>Creator:</strong> {{ recipe.creator.username }}</p>
+<p><strong>Views:</strong> {{ recipe.view_count }}</p>
+<p><strong>Favourites:</strong> {{ recipe.favourite_count }}</p>
+<p><strong>Likes:</strong> {{ recipe.like_count }}</p>
+
+{% if user.is_authenticated %}
+    {% if user == recipe.creator %}
+        <p>
+            <a href="{% url 'edit_recipe' recipe.id %}">Edit</a> |
+            <a href="{% url 'delete_recipe' recipe.id %}">Delete</a>
+        </p>
+    {% endif %}
+
+    {% if is_favourite %}
+        <p><a href="{% url 'remove_favourite' recipe.id %}">Remove from favourites</a></p>
+    {% else %}
+        <p><a href="{% url 'add_favourite' recipe.id %}">Add to favourites</a></p>
+    {% endif %}
+{% else %}
+    <p><a href="{% url 'login' %}">Login</a> to favourite this recipe.</p>
+{% endif %}
+
+</body>
+</html>

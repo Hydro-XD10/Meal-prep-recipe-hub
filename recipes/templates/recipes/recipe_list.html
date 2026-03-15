@@ -7,6 +7,23 @@
 
 <h1>All Recipes</h1>
 
+{% if user.is_authenticated %}
+    <p>
+        Welcome, {{ user.username }} |
+        <a href="{% url 'create_recipe' %}">Create Recipe</a> |
+        <a href="{% url 'my_favourites' %}">My Favourites</a> |
+        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </p>
+{% else %}
+    <p>
+        <a href="{% url 'login' %}">Login</a> |
+        <a href="{% url 'signup' %}">Sign Up</a>
+    </p>
+{% endif %}
+
 <form method="get">
     <input type="text" name="q" placeholder="Search by title" value="{{ query|default:'' }}">
     <button type="submit">Search</button>
@@ -19,9 +36,17 @@
                 {{ recipe.title }}
             </a>
         </h2>
+
+        {% if recipe.image %}
+            <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}" width="200">
+        {% endif %}
+
         <p>{{ recipe.ingredients }}</p>
         <p>Cooking time: {{ recipe.cooking_time }} minutes</p>
         <p>Difficulty: {{ recipe.difficulty }}</p>
+        <p>Created by: {{ recipe.creator.username }}</p>
+        <p>Views: {{ recipe.view_count }}</p>
+        <p>Favourites: {{ recipe.favourite_count }}</p>
         <hr>
     {% endfor %}
 {% else %}

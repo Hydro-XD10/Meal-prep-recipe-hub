@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sign Up</title>
+</head>
+<body>
+
+<h1>Sign Up</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Register</button>
+</form>
+
+<p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+<p><a href="{% url 'recipe_list' %}">Back to recipes</a></p>
+
+</body>
+</html>

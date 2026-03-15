@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Favourites</title>
+</head>
+<body>
+
+<h1>My Favourite Recipes</h1>
+
+<p><a href="{% url 'recipe_list' %}">Back to recipes</a></p>
+
+{% if favourites %}
+    {% for favourite in favourites %}
+        <h2>
+            <a href="{% url 'recipe_detail' favourite.recipe.id %}">
+                {{ favourite.recipe.title }}
+            </a>
+        </h2>
+        <p>Added on: {{ favourite.created_at }}</p>
+        <hr>
+    {% endfor %}
+{% else %}
+    <p>You have no favourite recipes yet.</p>
+{% endif %}
+
+</body>
+</html>
