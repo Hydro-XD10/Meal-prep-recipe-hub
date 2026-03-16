@@ -1,0 +1,70 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ recipe.title }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="mb-4">
+            {% if recipe.image %}
+                <img src="{{ recipe.image.url }}" class="img-fluid recipe-detail-img" alt="{{ recipe.title }}">
+            {% else %}
+                <img src="{% static 'images/default-recipe.jpg' %}" class="img-fluid recipe-detail-img" alt="Default recipe image">
+            {% endif %}
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="content-box">
+                    <h3 class="section-heading">Ingredients</h3>
+                    <p>{{ recipe.ingredients|linebreaks }}</p>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="content-box">
+                    <h3 class="section-heading">Steps</h3>
+                    <p>{{ recipe.steps|linebreaks }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="detail-meta-box mb-4">
+            <h2 class="h4 mb-3">{{ recipe.title }}</h2>
+            <p class="text-muted mb-1">Creator: <strong>{{ recipe.creator.username }}</strong></p>
+            <p class="text-muted mb-1">Cooking time: <strong>{{ recipe.time_mins }} mins</strong></p>
+            <p class="text-muted mb-1">Difficulty: <strong>{{ recipe.difficulty }}</strong></p>
+        </div>
+
+        <div class="detail-meta-box mb-4">
+            <h3 class="h5 mb-3">Actions</h3>
+
+            {% if user.is_authenticated %}
+                {% if is_favourite %}
+                    <a href="{% url 'remove_favourite' recipe.id %}" class="btn btn-danger w-100 mb-2">♥ Unfavourite</a>
+                {% else %}
+                    <a href="{% url 'add_favourite' recipe.id %}" class="btn btn-outline-danger w-100 mb-2">♡ Favourite</a>
+                {% endif %}
+
+                <button class="btn btn-outline-primary w-100 mb-2" disabled>👍 Like</button>
+            {% else %}
+                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-danger w-100 mb-2">Login to favourite</a>
+                <a href="{% url 'signup' %}?next={{ request.path }}" class="btn btn-outline-secondary w-100">Create account</a>
+            {% endif %}
+        </div>
+
+        <div class="detail-meta-box">
+            <h3 class="h5 mb-3">Statistics</h3>
+            <ul class="list-unstyled mb-0">
+                <li><strong>Views:</strong> {{ recipe.view_count }}</li>
+                <li><strong>Favourites:</strong> {{ recipe.favourite_count }}</li>
+                <li><strong>Likes:</strong> {{ recipe.like_count }}</li>
+                <li><strong>Last updated:</strong> {{ recipe.updated_at|date:'Y-m-d' }}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

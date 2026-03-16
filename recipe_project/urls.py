@@ -36,6 +36,8 @@ urlpatterns = [
     path('recipe/<int:recipe_id>/favourite/', views.add_favourite, name='add_favourite'),
     path('recipe/<int:recipe_id>/unfavourite/', views.remove_favourite, name='remove_favourite'),
     path('my-favourites/', views.my_favourites, name='my_favourites'),
+    path('my-recipes/', views.my_recipes, name='my_recipes'),
+    path('plan/', views.weekly_plan, name='weekly_plan'),
 ]
 
 if settings.DEBUG:

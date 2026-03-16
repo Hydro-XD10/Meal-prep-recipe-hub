@@ -14,9 +14,14 @@ def recipe_list(request):
     else:
         recipes = Recipe.objects.all()
 
+    favourite_recipes = []
+    if request.user.is_authenticated:
+        favourite_recipes = Recipe.objects.filter(favourite__user=request.user)
+
     return render(request, 'recipes/recipe_list.html', {
         'recipes': recipes,
-        'query': query
+        'query': query,
+        'favourite_recipes': favourite_recipes,
     })
 
 
@@ -32,7 +37,8 @@ def recipe_detail(request, recipe_id):
 
     return render(request, 'recipes/recipe_detail.html', {
         'recipe': recipe,
-        'is_favourite': is_favourite
+        'is_favourite': is_favourite,
+        'is_favourited': is_favourite,
     })
 
 
@@ -120,3 +126,15 @@ def remove_favourite(request, recipe_id):
 def my_favourites(request):
     favourites = Favourite.objects.filter(user=request.user).select_related('recipe').order_by('-created_at')
     return render(request, 'recipes/my_favourites.html', {'favourites': favourites})
+@login_required
+def my_recipes(request):
+    recipes = Recipe.objects.filter(creator=request.user).order_by('-created_at')
+    return render(request, 'recipes/my_recipes.html', {
+        'recipes': recipes,
+    })
+
+
+@login_required
+def weekly_plan(request):
+    # Placeholder implementation - can be extended with a real planning model
+    return render(request, 'recipes/weekly_plan.html')

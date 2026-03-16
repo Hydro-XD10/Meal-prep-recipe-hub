@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}My Recipes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-0">My Recipes</h1>
+        <p class="text-muted mb-0">Create, edit, and manage the recipes you've added.</p>
+    </div>
+    <a href="{% url 'create_recipe' %}" class="btn btn-primary">+ New Recipe</a>
+</div>
+
+{% if recipes %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Time</th>
+                    <th>Difficulty</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for recipe in recipes %}
+                    <tr>
+                        <td><a href="{% url 'recipe_detail' recipe.id %}">{{ recipe.title }}</a></td>
+                        <td>{{ recipe.time_mins }} min</td>
+                        <td>{{ recipe.difficulty }}</td>
+                        <td class="text-end">
+                            <a href="{% url 'edit_recipe' recipe.id %}" class="btn btn-sm btn-outline-primary me-2">Edit</a>
+                            <a href="{% url 'delete_recipe' recipe.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="alert alert-info">You have not created any recipes yet. <a href="{% url 'create_recipe' %}">Create your first recipe</a>.</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}All Recipes{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center mb-4">
+    <h1 class="display-6 fw-bold">Discover Simple Meal Prep Recipes</h1>
+    <p class="text-muted">Browse recipes, save favourites, and find ideas for your next meal.</p>
+</div>
+
+{% include 'includes/search_bar.html' %}
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for recipe in recipes %}
+        {% include 'includes/recipe_card.html' %}
+    {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">No recipes found.</div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

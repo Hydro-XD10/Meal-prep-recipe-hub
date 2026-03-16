@@ -1,0 +1,12 @@
+<form method="GET" action="{% url 'recipe_list' %}" class="search-bar mb-4">
+    <div class="input-group">
+        <input
+            type="text"
+            name="q"
+            class="form-control"
+            placeholder="Search by recipe title or ingredient..."
+            value="{{ request.GET.q }}"
+        >
+        <button class="btn btn-success" type="submit">Search</button>
+    </div>
+</form>

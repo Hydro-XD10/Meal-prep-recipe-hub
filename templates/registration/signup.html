@@ -1,20 +1,24 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Sign Up</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-<h1>Sign Up</h1>
+{% block title %}Create an account{% endblock %}
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Register</button>
-</form>
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="form-card shadow-sm">
+            <h2 class="mb-4 text-center">Create an account</h2>
 
-<p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
-<p><a href="{% url 'recipe_list' %}">Back to recipes</a></p>
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
 
-</body>
-</html>
+                <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+            </form>
+
+            <p class="text-center mt-3">
+                Already have an account? <a href="{% url 'login' %}">Login</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

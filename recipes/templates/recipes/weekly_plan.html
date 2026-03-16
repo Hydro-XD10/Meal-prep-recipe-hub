@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Weekly Plan{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="mb-0">Weekly Plan</h1>
+        <p class="text-muted mb-0">Quickly build a simple meal plan for the week.</p>
+    </div>
+    <a href="{% url 'my_recipes' %}" class="btn btn-outline-primary">View My Recipes</a>
+</div>
+
+<div class="content-box">
+    <h3 class="section-heading">Your plan</h3>
+    <p class="text-muted">This feature is a placeholder for a weekly plan. You can build it by selecting recipes from your list.</p>
+    <ul class="list-group">
+        <li class="list-group-item">Monday: —</li>
+        <li class="list-group-item">Tuesday: —</li>
+        <li class="list-group-item">Wednesday: —</li>
+        <li class="list-group-item">Thursday: —</li>
+        <li class="list-group-item">Friday: —</li>
+        <li class="list-group-item">Saturday: —</li>
+        <li class="list-group-item">Sunday: —</li>
+    </ul>
+</div>
+{% endblock %}
