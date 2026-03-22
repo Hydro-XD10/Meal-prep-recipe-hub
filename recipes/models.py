@@ -30,6 +30,10 @@ class Recipe(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    @property
+    def time_mins(self):
+        return self.cooking_time
+
     def favourite_count(self):
         return Favourite.objects.filter(recipe=self).count()
 
