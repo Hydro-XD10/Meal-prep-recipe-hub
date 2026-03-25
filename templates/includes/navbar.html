@@ -11,22 +11,25 @@
                 <li class="nav-item">
                     <a class="nav-link text-white fw-semibold" href="{% url 'recipe_list' %}">Browse</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white fw-semibold" href="{% url 'my_favourites' %}">Favourites</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white fw-semibold" href="{% url 'my_recipes' %}">My Recipes</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link text-white fw-semibold" href="{% url 'weekly_plan' %}">Weekly Plan</a>
-                </li>
 
                 {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-semibold" href="{% url 'my_favourites' %}">Favourites</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-semibold" href="{% url 'my_recipes' %}">My Recipes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-white fw-semibold" href="{% url 'weekly_plan' %}">Weekly Plan</a>
+                    </li>
                     <li class="nav-item ms-lg-3">
                         <a class="btn btn-outline-light" href="{% url 'create_recipe' %}">+ Add Recipe</a>
                     </li>
                     <li class="nav-item ms-lg-2">
-                        <a class="btn btn-light" href="{% url 'logout' %}?next={{ request.path }}">Logout</a>
+                        <form method="post" action="{% url 'logout' %}" class="m-0">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-light">Logout</button>
+                        </form>
                     </li>
                 {% else %}
                     <li class="nav-item">

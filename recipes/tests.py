@@ -229,13 +229,13 @@ class AuthAndRecipeFeatureTests(TestCase):
         self.assertTrue(Recipe.objects.filter(id=self.recipe.id).exists())
 
     def test_add_favourite_requires_login(self):
-        response = self.client.get(reverse("add_favourite", args=[self.recipe.id]))
+        response = self.client.post(reverse("add_favourite", args=[self.recipe.id]))
         self.assertEqual(response.status_code, 302)
 
     def test_logged_in_user_can_add_favourite(self):
         self.client.login(username="otheruser", password="recipe1234")
 
-        response = self.client.get(reverse("add_favourite", args=[self.recipe.id]))
+        response = self.client.post(reverse("add_favourite", args=[self.recipe.id]))
 
         self.assertEqual(response.status_code, 302)
         self.assertTrue(
@@ -246,7 +246,7 @@ class AuthAndRecipeFeatureTests(TestCase):
         Favourite.objects.create(user=self.other_user, recipe=self.recipe)
         self.client.login(username="otheruser", password="recipe1234")
 
-        response = self.client.get(reverse("remove_favourite", args=[self.recipe.id]))
+        response = self.client.post(reverse("remove_favourite", args=[self.recipe.id]))
 
         self.assertEqual(response.status_code, 302)
         self.assertFalse(
@@ -254,13 +254,13 @@ class AuthAndRecipeFeatureTests(TestCase):
         )
 
     def test_add_like_requires_login(self):
-        response = self.client.get(reverse("add_like", args=[self.recipe.id]))
+        response = self.client.post(reverse("add_like", args=[self.recipe.id]))
         self.assertEqual(response.status_code, 302)
 
     def test_logged_in_user_can_add_like(self):
         self.client.login(username="otheruser", password="recipe1234")
 
-        response = self.client.get(reverse("add_like", args=[self.recipe.id]))
+        response = self.client.post(reverse("add_like", args=[self.recipe.id]))
 
         self.assertEqual(response.status_code, 302)
         self.assertTrue(
@@ -271,7 +271,7 @@ class AuthAndRecipeFeatureTests(TestCase):
         Like.objects.create(user=self.other_user, recipe=self.recipe)
         self.client.login(username="otheruser", password="recipe1234")
 
-        response = self.client.get(reverse("remove_like", args=[self.recipe.id]))
+        response = self.client.post(reverse("remove_like", args=[self.recipe.id]))
 
         self.assertEqual(response.status_code, 302)
         self.assertFalse(
@@ -285,6 +285,15 @@ class AuthAndRecipeFeatureTests(TestCase):
     def test_my_recipes_requires_login(self):
         response = self.client.get(reverse("my_recipes"))
         self.assertEqual(response.status_code, 302)
+
+    def test_logged_in_user_can_view_my_favourites_page(self):
+        Favourite.objects.create(user=self.owner, recipe=self.recipe)
+        self.client.login(username="owner", password="recipe1234")
+
+        response = self.client.get(reverse("my_favourites"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Owner Recipe")
 
     def test_my_recipes_shows_only_logged_in_users_recipes(self):
         Recipe.objects.create(
@@ -305,3 +314,15 @@ class AuthAndRecipeFeatureTests(TestCase):
 
         self.assertIn("Owner Recipe", titles)
         self.assertNotIn("Other User Recipe", titles)
+
+    def test_logout_requires_post_and_post_logs_user_out(self):
+        self.client.login(username="owner", password="recipe1234")
+
+        get_response = self.client.get(reverse("logout"))
+        self.assertEqual(get_response.status_code, 405)
+
+        post_response = self.client.post(reverse("logout"))
+        self.assertEqual(post_response.status_code, 302)
+
+        follow_up_response = self.client.get(reverse("my_recipes"))
+        self.assertEqual(follow_up_response.status_code, 302)
