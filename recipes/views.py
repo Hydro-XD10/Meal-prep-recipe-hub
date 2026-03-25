@@ -6,20 +6,30 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.db.models import Q
-from .models import Recipe, Favourite
+from .models import Recipe, Favourite, Like
 from .forms import SignUpForm, RecipeForm
 
 
 def _seed_initial_recipes():
-
-    keep_titles = ['Kabsa', 'Chicken Fried Rice', 'Lamb with Scallions', 'Moo-Shu Pork', 'Pork with Preserved Greens', 'Jareesh']
+    keep_titles = [
+        'Kabsa',
+        'Chicken Fried Rice',
+        'Lamb with Scallions',
+        'Moo-Shu Pork',
+        'Pork with Preserved Greens',
+        'Jareesh',
+        'Biryani',
+        'Butter Chicken',
+    ]
     Recipe.objects.exclude(title__in=keep_titles).delete()
 
     creator_specs = {
         'XiaobeiTang': 'xiaobeitang@example.com',
         'XinhaoZhang': 'xinhaozhang@example.com',
         'Abdulmalik Alamri': 'abdulmalik.alamri@example.com',
+        'MayankMishra': 'mayankmishra@example.com',
     }
+
     creators = {}
     for username, email in creator_specs.items():
         user, created = User.objects.get_or_create(
@@ -90,6 +100,26 @@ def _seed_initial_recipes():
             'image_path': 'media/recipe_images/Jareesh.png',
             'image_name': 'Jareesh.png',
         },
+        {
+            'title': 'Biryani',
+            'ingredients': 'Basmati rice\nChicken\nYogurt\nOnions\nTomatoes\nGinger garlic paste\nBiryani masala\nTurmeric\nChili powder\nCoriander leaves\nMint leaves\nOil or ghee\nSalt',
+            'steps': '1. Marinate the chicken with yogurt, ginger garlic paste, salt, turmeric, chili powder, and biryani masala.\n2. Fry sliced onions until golden brown and keep some aside for garnish.\n3. Cook the marinated chicken with tomatoes until tender.\n4. Partially boil the basmati rice with salt.\n5. Layer the rice over the cooked chicken, adding fried onions, mint, and coriander between layers.\n6. Cover and cook on low heat until the rice is fully done and the flavours combine.\n7. Gently mix and serve hot.',
+            'cooking_time': 60,
+            'difficulty': 'Hard',
+            'creator_username': 'MayankMishra',
+            'image_path': 'media/recipe_images/biryani.avif',
+            'image_name': 'biryani.avif',
+        },
+        {
+            'title': 'Butter Chicken',
+            'ingredients': 'Chicken\nYogurt\nButter\nTomato puree\nCream\nOnion\nGarlic\nGinger\nGaram masala\nChili powder\nTurmeric\nCumin\nSalt',
+            'steps': '1. Marinate the chicken with yogurt, ginger garlic paste, turmeric, chili powder, garam masala, and salt.\n2. Cook or grill the chicken pieces until lightly charred and set aside.\n3. In a pan, cook butter with onion, garlic, and ginger.\n4. Add tomato puree and spices, then simmer until thick.\n5. Stir in cream and add the cooked chicken.\n6. Cook for a few more minutes until the chicken is fully coated in the sauce.\n7. Serve with rice or naan.',
+            'cooking_time': 40,
+            'difficulty': 'Medium',
+            'creator_username': 'MayankMishra',
+            'image_path': 'media/recipe_images/butterchicken.jpg',
+            'image_name': 'butterchicken.jpg',
+        },
     ]
 
     for recipe_data in initial_data:
@@ -104,6 +134,7 @@ def _seed_initial_recipes():
                 'creator': creator
             }
         )[0]
+
         if recipe_data.get('image_path'):
             try:
                 desired_image_name = f"recipe_images/{recipe_data['image_name']}"
@@ -118,7 +149,7 @@ def _seed_initial_recipes():
                             recipe.image.save(recipe_data['image_name'], File(f), save=False)
                         recipe.save(update_fields=['image'])
             except FileNotFoundError:
-                pass  
+                pass
 
 
 def recipe_list(request):
@@ -150,13 +181,17 @@ def recipe_detail(request, recipe_id):
     recipe.save()
 
     is_favourite = False
+    is_liked = False
+
     if request.user.is_authenticated:
         is_favourite = Favourite.objects.filter(user=request.user, recipe=recipe).exists()
+        is_liked = Like.objects.filter(user=request.user, recipe=recipe).exists()
 
     return render(request, 'recipes/recipe_detail.html', {
         'recipe': recipe,
         'is_favourite': is_favourite,
         'is_favourited': is_favourite,
+        'is_liked': is_liked,
     })
 
 
@@ -241,9 +276,25 @@ def remove_favourite(request, recipe_id):
 
 
 @login_required
+def add_like(request, recipe_id):
+    recipe = get_object_or_404(Recipe, id=recipe_id)
+    Like.objects.get_or_create(user=request.user, recipe=recipe)
+    return redirect('recipe_detail', recipe_id=recipe.id)
+
+
+@login_required
+def remove_like(request, recipe_id):
+    recipe = get_object_or_404(Recipe, id=recipe_id)
+    Like.objects.filter(user=request.user, recipe=recipe).delete()
+    return redirect('recipe_detail', recipe_id=recipe.id)
+
+
+@login_required
 def my_favourites(request):
     favourites = Favourite.objects.filter(user=request.user).select_related('recipe').order_by('-created_at')
     return render(request, 'recipes/my_favourites.html', {'favourites': favourites})
+
+
 @login_required
 def my_recipes(request):
     recipes = Recipe.objects.filter(creator=request.user).order_by('-created_at')
