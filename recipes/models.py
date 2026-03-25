@@ -65,3 +65,26 @@ class Like(models.Model):
 
     def __str__(self):
         return f"{self.user.username} liked {self.recipe.title}"
+
+
+class WeeklyPlanEntry(models.Model):
+    DAY_CHOICES = [
+        ("monday", "Monday"),
+        ("tuesday", "Tuesday"),
+        ("wednesday", "Wednesday"),
+        ("thursday", "Thursday"),
+        ("friday", "Friday"),
+        ("saturday", "Saturday"),
+        ("sunday", "Sunday"),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    day_of_week = models.CharField(max_length=10, choices=DAY_CHOICES)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("user", "day_of_week")
+        ordering = ["id"]
+
+    def __str__(self):
+        return f"{self.user.username} planned {self.recipe.title} for {self.day_of_week}"

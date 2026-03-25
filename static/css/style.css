@@ -3,8 +3,58 @@ body {
     color: #212529;
 }
 
-.custom-navbar {
-    background-color: #198754;
+.navbar.custom-navbar {
+    background-color: #198754 !important;
+    box-shadow: 0 6px 18px rgba(25, 135, 84, 0.16);
+}
+
+.navbar.custom-navbar .navbar-brand {
+    color: #ffffff;
+    letter-spacing: 0.01em;
+}
+
+.navbar.custom-navbar .navbar-brand:hover,
+.navbar.custom-navbar .navbar-brand:focus {
+    color: #ffffff;
+}
+
+.navbar.custom-navbar .nav-link {
+    color: #ffffff !important;
+    font-weight: 600;
+    padding: 0.45rem 0.9rem !important;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.16);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.navbar.custom-navbar .nav-link:hover,
+.navbar.custom-navbar .nav-link:focus {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.26);
+    transform: translateY(-1px);
+}
+
+.navbar.custom-navbar .btn-outline-light {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(255, 255, 255, 0.12);
+    font-weight: 600;
+}
+
+.navbar.custom-navbar .btn-outline-light:hover,
+.navbar.custom-navbar .btn-outline-light:focus {
+    color: #145c3a;
+    background-color: #ffffff;
+    border-color: #ffffff;
+}
+
+.navbar.custom-navbar .btn-light {
+    color: #145c3a;
+    font-weight: 700;
+}
+
+.navbar.custom-navbar .navbar-nav {
+    gap: 0.65rem;
 }
 
 .footer {
@@ -129,6 +179,18 @@ body {
 }
 
 @media (max-width: 768px) {
+    .navbar.custom-navbar .navbar-nav {
+        gap: 0.75rem;
+        padding-top: 1rem;
+    }
+
+    .navbar.custom-navbar .nav-link,
+    .navbar.custom-navbar .btn-outline-light,
+    .navbar.custom-navbar .btn-light {
+        width: 100%;
+        text-align: center;
+    }
+
     .recipe-card .recipe-card-media {
         height: 200px;
         min-height: 200px;

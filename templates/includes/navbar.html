@@ -1,6 +1,6 @@
-<nav class="navbar navbar-expand-lg navbar-dark custom-navbar">
+<nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm py-3 custom-navbar">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="{% url 'recipe_list' %}">Meal Prep Recipe Hub</a>
+        <a class="navbar-brand fw-bold text-white" href="{% url 'recipe_list' %}">Meal Prep Recipe Hub</a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
             <span class="navbar-toggler-icon"></span>
@@ -9,16 +9,16 @@
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav ms-auto align-items-lg-center">
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'recipe_list' %}">Browse</a>
+                    <a class="nav-link text-white fw-semibold" href="{% url 'recipe_list' %}">Browse</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'my_favourites' %}">Favourites</a>
+                    <a class="nav-link text-white fw-semibold" href="{% url 'my_favourites' %}">Favourites</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'my_recipes' %}">My Recipes</a>
+                    <a class="nav-link text-white fw-semibold" href="{% url 'my_recipes' %}">My Recipes</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'weekly_plan' %}">Weekly Plan</a>
+                    <a class="nav-link text-white fw-semibold" href="{% url 'weekly_plan' %}">Weekly Plan</a>
                 </li>
 
                 {% if user.is_authenticated %}
@@ -30,10 +30,10 @@
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}?next={{ request.path }}">Login</a>
+                        <a class="nav-link text-white fw-semibold" href="{% url 'login' %}?next={{ request.path }}">Login</a>
                     </li>
                     <li class="nav-item ms-lg-2">
-                        <a class="btn btn-outline-light" href="{% url 'signup' %}">Sign Up</a>
+                        <a class="btn btn-light fw-semibold" href="{% url 'signup' %}">Sign Up</a>
                     </li>
                 {% endif %}
             </ul>

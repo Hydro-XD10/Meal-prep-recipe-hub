@@ -44,12 +44,28 @@
 
             {% if user.is_authenticated %}
                 {% if is_favourite %}
-                    <a href="{% url 'remove_favourite' recipe.id %}" class="btn btn-danger w-100 mb-2">♥ Unfavourite</a>
+                    <form method="post" action="{% url 'remove_favourite' recipe.id %}" class="mb-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger w-100">♥ Unfavourite</button>
+                    </form>
                 {% else %}
-                    <a href="{% url 'add_favourite' recipe.id %}" class="btn btn-outline-danger w-100 mb-2">♡ Favourite</a>
+                    <form method="post" action="{% url 'add_favourite' recipe.id %}" class="mb-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger w-100">♡ Favourite</button>
+                    </form>
                 {% endif %}
 
-                <button class="btn btn-outline-primary w-100 mb-2" disabled>👍 Like</button>
+                {% if is_liked %}
+                    <form method="post" action="{% url 'remove_like' recipe.id %}" class="mb-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary w-100">👍 Unlike</button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{% url 'add_like' recipe.id %}" class="mb-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-primary w-100">👍 Like</button>
+                    </form>
+                {% endif %}
             {% else %}
                 <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-danger w-100 mb-2">Login to favourite</a>
                 <a href="{% url 'signup' %}?next={{ request.path }}" class="btn btn-outline-secondary w-100">Create account</a>
@@ -62,7 +78,7 @@
                 <li><strong>Views:</strong> {{ recipe.view_count }}</li>
                 <li><strong>Favourites:</strong> {{ recipe.favourite_count }}</li>
                 <li><strong>Likes:</strong> {{ recipe.like_count }}</li>
-                <li><strong>Last updated:</strong> {{ recipe.updated_at|date:'Y-m-d' }}</li>
+                <li><strong>Created:</strong> {{ recipe.created_at|date:'Y-m-d' }}</li>
             </ul>
         </div>
     </div>

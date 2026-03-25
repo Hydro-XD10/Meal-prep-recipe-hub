@@ -13,15 +13,32 @@
 
 <div class="content-box">
     <h3 class="section-heading">Your plan</h3>
-    <p class="text-muted">This feature is a placeholder for a weekly plan. You can build it by selecting recipes from your list.</p>
-    <ul class="list-group">
-        <li class="list-group-item">Monday: —</li>
-        <li class="list-group-item">Tuesday: —</li>
-        <li class="list-group-item">Wednesday: —</li>
-        <li class="list-group-item">Thursday: —</li>
-        <li class="list-group-item">Friday: —</li>
-        <li class="list-group-item">Saturday: —</li>
-        <li class="list-group-item">Sunday: —</li>
-    </ul>
+    <p class="text-muted">Choose a recipe for each day, then save your plan. You can leave any day empty and update it later.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+            {% for item in plan_items %}
+                <div class="col-md-6">
+                    <div class="border rounded-3 p-3 h-100 bg-light">
+                        <label for="{{ item.field.id_for_label }}" class="form-label fw-semibold">{{ item.day_label }}</label>
+                        {{ item.field }}
+                        {% if item.selected_recipe %}
+                            <p class="small text-muted mt-2 mb-0">
+                                Current choice:
+                                <a href="{% url 'recipe_detail' item.selected_recipe.id %}">{{ item.selected_recipe.title }}</a>
+                            </p>
+                        {% else %}
+                            <p class="small text-muted mt-2 mb-0">Current choice: None</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+            <button type="submit" class="btn btn-success">Save Weekly Plan</button>
+        </div>
+    </form>
 </div>
 {% endblock %}

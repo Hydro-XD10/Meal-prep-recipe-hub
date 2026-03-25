@@ -6,23 +6,11 @@ from django.http import HttpResponseForbidden
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.db.models import Q
-from .models import Recipe, Favourite, Like
-from .forms import SignUpForm, RecipeForm
+from .models import Recipe, Favourite, Like, WeeklyPlanEntry
+from .forms import SignUpForm, RecipeForm, WeeklyPlanForm
 
 
 def _seed_initial_recipes():
-    keep_titles = [
-        'Kabsa',
-        'Chicken Fried Rice',
-        'Lamb with Scallions',
-        'Moo-Shu Pork',
-        'Pork with Preserved Greens',
-        'Jareesh',
-        'Biryani',
-        'Butter Chicken',
-    ]
-    Recipe.objects.exclude(title__in=keep_titles).delete()
-
     creator_specs = {
         'XiaobeiTang': 'xiaobeitang@example.com',
         'XinhaoZhang': 'xinhaozhang@example.com',
@@ -124,30 +112,33 @@ def _seed_initial_recipes():
 
     for recipe_data in initial_data:
         creator = creators[recipe_data['creator_username']]
-        recipe = Recipe.objects.update_or_create(
+        defaults = {
+            k: v for k, v in recipe_data.items()
+            if k not in ['image_path', 'image_name', 'creator_username']
+        }
+        recipe, _created = Recipe.objects.get_or_create(
             title=recipe_data['title'],
-            defaults={
-                **{
-                    k: v for k, v in recipe_data.items()
-                    if k not in ['image_path', 'image_name', 'creator_username']
-                },
-                'creator': creator
-            }
-        )[0]
+            creator=creator,
+            defaults=defaults,
+        )
+
+        fields_to_update = []
+        for field_name, field_value in defaults.items():
+            if getattr(recipe, field_name) != field_value:
+                setattr(recipe, field_name, field_value)
+                fields_to_update.append(field_name)
+
+        if fields_to_update:
+            recipe.save(update_fields=fields_to_update)
 
         if recipe_data.get('image_path'):
             try:
-                desired_image_name = f"recipe_images/{recipe_data['image_name']}"
-                current_image_name = recipe.image.name or ''
-
-                if current_image_name != desired_image_name:
-                    if os.path.exists(recipe_data['image_path']):
-                        recipe.image.name = desired_image_name
-                        recipe.save(update_fields=['image'])
-                    else:
-                        with open(recipe_data['image_path'], 'rb') as f:
-                            recipe.image.save(recipe_data['image_name'], File(f), save=False)
-                        recipe.save(update_fields=['image'])
+                with open(recipe_data['image_path'], 'rb') as f:
+                    recipe.image.save(
+                        recipe_data['image_name'],
+                        File(f),
+                        save=True
+                    )
             except FileNotFoundError:
                 pass
 
@@ -305,5 +296,51 @@ def my_recipes(request):
 
 @login_required
 def weekly_plan(request):
-    # Placeholder implementation - can be extended with a real planning model
-    return render(request, 'recipes/weekly_plan.html')
+    available_recipes = Recipe.objects.all()
+    existing_entries = {
+        entry.day_of_week: entry
+        for entry in WeeklyPlanEntry.objects.filter(user=request.user).select_related("recipe")
+    }
+
+    initial_data = {
+        day_key: existing_entries[day_key].recipe
+        for day_key, _day_label in WeeklyPlanEntry.DAY_CHOICES
+        if day_key in existing_entries
+    }
+
+    if request.method == "POST":
+        form = WeeklyPlanForm(request.POST, recipes=available_recipes)
+        if form.is_valid():
+            for day_key, _day_label in WeeklyPlanEntry.DAY_CHOICES:
+                selected_recipe = form.cleaned_data[day_key]
+
+                if selected_recipe:
+                    WeeklyPlanEntry.objects.update_or_create(
+                        user=request.user,
+                        day_of_week=day_key,
+                        defaults={"recipe": selected_recipe},
+                    )
+                else:
+                    WeeklyPlanEntry.objects.filter(
+                        user=request.user,
+                        day_of_week=day_key,
+                    ).delete()
+
+            return redirect("weekly_plan")
+    else:
+        form = WeeklyPlanForm(initial=initial_data, recipes=available_recipes)
+
+    plan_items = []
+    for day_key, day_label in WeeklyPlanEntry.DAY_CHOICES:
+        selected_recipe = form.initial.get(day_key) if request.method != "POST" else form.cleaned_data.get(day_key) if form.is_bound and form.is_valid() else initial_data.get(day_key)
+        plan_items.append({
+            "day_key": day_key,
+            "day_label": day_label,
+            "selected_recipe": selected_recipe,
+            "field": form[day_key],
+        })
+
+    return render(request, "recipes/weekly_plan.html", {
+        "form": form,
+        "plan_items": plan_items,
+    })
