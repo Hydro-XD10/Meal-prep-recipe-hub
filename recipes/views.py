@@ -137,17 +137,12 @@ def _seed_initial_recipes():
 
         if recipe_data.get('image_path'):
             try:
-                desired_image_name = f"recipe_images/{recipe_data['image_name']}"
-                current_image_name = recipe.image.name or ''
-
-                if current_image_name != desired_image_name:
-                    if os.path.exists(recipe_data['image_path']):
-                        recipe.image.name = desired_image_name
-                        recipe.save(update_fields=['image'])
-                    else:
-                        with open(recipe_data['image_path'], 'rb') as f:
-                            recipe.image.save(recipe_data['image_name'], File(f), save=False)
-                        recipe.save(update_fields=['image'])
+                with open(recipe_data['image_path'], 'rb') as f:
+                    recipe.image.save(
+                        recipe_data['image_name'],
+                        File(f),
+                        save=True
+                    )
             except FileNotFoundError:
                 pass
 
