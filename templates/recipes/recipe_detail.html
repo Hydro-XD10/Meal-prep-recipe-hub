@@ -43,29 +43,43 @@
             <h3 class="h5 mb-3">Actions</h3>
 
             {% if user.is_authenticated %}
-                {% if is_favourite %}
-                    <form method="post" action="{% url 'remove_favourite' recipe.id %}" class="mb-2">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger w-100">♥ Unfavourite</button>
-                    </form>
-                {% else %}
-                    <form method="post" action="{% url 'add_favourite' recipe.id %}" class="mb-2">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-danger w-100">♡ Favourite</button>
-                    </form>
-                {% endif %}
+                <form
+                    method="post"
+                    action="{% if is_favourite %}{% url 'remove_favourite' recipe.id %}{% else %}{% url 'add_favourite' recipe.id %}{% endif %}"
+                    class="mb-2 js-recipe-action"
+                    data-action-type="favourite"
+                    data-add-url="{% url 'add_favourite' recipe.id %}"
+                    data-remove-url="{% url 'remove_favourite' recipe.id %}"
+                    data-active="{% if is_favourite %}true{% else %}false{% endif %}"
+                >
+                    {% csrf_token %}
+                    <button
+                        type="submit"
+                        class="btn w-100 {% if is_favourite %}btn-danger{% else %}btn-outline-danger{% endif %}"
+                        data-role="action-button"
+                    >
+                        {% if is_favourite %}♥ Unfavourite{% else %}♡ Favourite{% endif %}
+                    </button>
+                </form>
 
-                {% if is_liked %}
-                    <form method="post" action="{% url 'remove_like' recipe.id %}" class="mb-2">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-primary w-100">👍 Unlike</button>
-                    </form>
-                {% else %}
-                    <form method="post" action="{% url 'add_like' recipe.id %}" class="mb-2">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-outline-primary w-100">👍 Like</button>
-                    </form>
-                {% endif %}
+                <form
+                    method="post"
+                    action="{% if is_liked %}{% url 'remove_like' recipe.id %}{% else %}{% url 'add_like' recipe.id %}{% endif %}"
+                    class="mb-2 js-recipe-action"
+                    data-action-type="like"
+                    data-add-url="{% url 'add_like' recipe.id %}"
+                    data-remove-url="{% url 'remove_like' recipe.id %}"
+                    data-active="{% if is_liked %}true{% else %}false{% endif %}"
+                >
+                    {% csrf_token %}
+                    <button
+                        type="submit"
+                        class="btn w-100 {% if is_liked %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                        data-role="action-button"
+                    >
+                        {% if is_liked %}👍 Unlike{% else %}👍 Like{% endif %}
+                    </button>
+                </form>
             {% else %}
                 <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-danger w-100 mb-2">Login to favourite</a>
                 <a href="{% url 'signup' %}?next={{ request.path }}" class="btn btn-outline-secondary w-100">Create account</a>
@@ -76,11 +90,15 @@
             <h3 class="h5 mb-3">Statistics</h3>
             <ul class="list-unstyled mb-0">
                 <li><strong>Views:</strong> {{ recipe.view_count }}</li>
-                <li><strong>Favourites:</strong> {{ recipe.favourite_count }}</li>
-                <li><strong>Likes:</strong> {{ recipe.like_count }}</li>
+                <li><strong>Favourites:</strong> <span id="favourite-count">{{ recipe.favourite_count }}</span></li>
+                <li><strong>Likes:</strong> <span id="like-count">{{ recipe.like_count }}</span></li>
                 <li><strong>Created:</strong> {{ recipe.created_at|date:'Y-m-d' }}</li>
             </ul>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/recipe-actions.js' %}"></script>
 {% endblock %}

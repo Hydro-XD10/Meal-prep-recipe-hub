@@ -2,7 +2,7 @@ import os
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.db.models import Q
@@ -252,32 +252,45 @@ def delete_recipe(request, recipe_id):
     return render(request, 'recipes/delete_recipe.html', {'recipe': recipe})
 
 
+def _action_response(request, recipe, *, action_type, active):
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({
+            "success": True,
+            "action_type": action_type,
+            "active": active,
+            "favourite_count": recipe.favourite_count(),
+            "like_count": recipe.like_count(),
+        })
+
+    return redirect('recipe_detail', recipe_id=recipe.id)
+
+
 @login_required
 def add_favourite(request, recipe_id):
     recipe = get_object_or_404(Recipe, id=recipe_id)
     Favourite.objects.get_or_create(user=request.user, recipe=recipe)
-    return redirect('recipe_detail', recipe_id=recipe.id)
+    return _action_response(request, recipe, action_type="favourite", active=True)
 
 
 @login_required
 def remove_favourite(request, recipe_id):
     recipe = get_object_or_404(Recipe, id=recipe_id)
     Favourite.objects.filter(user=request.user, recipe=recipe).delete()
-    return redirect('recipe_detail', recipe_id=recipe.id)
+    return _action_response(request, recipe, action_type="favourite", active=False)
 
 
 @login_required
 def add_like(request, recipe_id):
     recipe = get_object_or_404(Recipe, id=recipe_id)
     Like.objects.get_or_create(user=request.user, recipe=recipe)
-    return redirect('recipe_detail', recipe_id=recipe.id)
+    return _action_response(request, recipe, action_type="like", active=True)
 
 
 @login_required
 def remove_like(request, recipe_id):
     recipe = get_object_or_404(Recipe, id=recipe_id)
     Like.objects.filter(user=request.user, recipe=recipe).delete()
-    return redirect('recipe_detail', recipe_id=recipe.id)
+    return _action_response(request, recipe, action_type="like", active=False)
 
 
 @login_required
