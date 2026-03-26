@@ -18,6 +18,9 @@ def _seed_initial_recipes():
         'MayankMishra': 'mayankmishra@example.com',
     }
 
+    if Recipe.objects.filter(creator__username__in=creator_specs.keys()).exists():
+        return
+
     creators = {}
     for username, email in creator_specs.items():
         user, created = User.objects.get_or_create(
@@ -133,12 +136,19 @@ def _seed_initial_recipes():
 
         if recipe_data.get('image_path'):
             try:
-                with open(recipe_data['image_path'], 'rb') as f:
-                    recipe.image.save(
-                        recipe_data['image_name'],
-                        File(f),
-                        save=True
-                    )
+                desired_image_name = f"recipe_images/{recipe_data['image_name']}"
+                if recipe.image.name != desired_image_name:
+                    if os.path.exists(recipe_data['image_path']):
+                        recipe.image.name = desired_image_name
+                        recipe.save(update_fields=["image"])
+                    else:
+                        with open(recipe_data['image_path'], 'rb') as f:
+                            recipe.image.save(
+                                recipe_data['image_name'],
+                                File(f),
+                                save=False
+                            )
+                        recipe.save(update_fields=["image"])
             except FileNotFoundError:
                 pass
 

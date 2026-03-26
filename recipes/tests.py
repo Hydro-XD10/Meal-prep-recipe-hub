@@ -52,6 +52,22 @@ class RecipeSearchTests(TestCase):
         self.assertEqual(custom_recipe.steps, "User steps")
         self.assertEqual(custom_recipe.cooking_time, 5)
 
+    def test_recipe_list_does_not_reseed_after_seed_data_exists(self):
+        self.client.get(reverse("recipe_list"))
+
+        seeded_recipe = Recipe.objects.get(
+            title="Kabsa",
+            creator__username="Abdulmalik Alamri",
+        )
+        seeded_recipe.ingredients = "Changed after initial seed"
+        seeded_recipe.save(update_fields=["ingredients"])
+
+        response = self.client.get(reverse("recipe_list"))
+
+        self.assertEqual(response.status_code, 200)
+        seeded_recipe.refresh_from_db()
+        self.assertEqual(seeded_recipe.ingredients, "Changed after initial seed")
+
 
 class WeeklyPlanTests(TestCase):
     def setUp(self):
